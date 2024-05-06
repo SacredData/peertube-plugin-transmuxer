@@ -59,9 +59,7 @@ async function register ({
   async function doFfmpeg(videoId) {
 	  let number = null
 	  while (!number) {
-		  console.log('nop number yet', number)
 	  	  number = await storageManager.getData(fieldName2 + '-' + videoId) || null
-		  console.log('number yet?', number)
 	  }
 	  console.log('FUCKING NUMBER', number)
 	  const videoFiles = await peertubeHelpers.videos.getFiles(videoId)
