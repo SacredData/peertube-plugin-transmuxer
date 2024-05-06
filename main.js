@@ -8,6 +8,7 @@ const fs = require('fs')
 
 const fieldName = 'transmux-m4a'
 const fieldName2 = 'episode-number'
+const fieldName3 = 'episode-premiere'
 
 async function register ({
   registerHook,
@@ -23,10 +24,11 @@ async function register ({
 
       const value = body.pluginData[fieldName]
 	  const value2 = body.pluginData[fieldName2]
-      if (!value) return
+	  const value3 = body.pluginData[fieldName3]
 
-      storageManager.storeData(fieldName + '-' + video.id, value)
-      storageManager.storeData(fieldName2 + '-' + video.id, value2)
+      if (value) storageManager.storeData(fieldName + '-' + video.id, value)
+      if (value2) storageManager.storeData(fieldName2 + '-' + video.id, value2)
+      if (value3) storageManager.storeData(fieldName3 + '-' + video.id, value3)
     }
   })
 
@@ -39,8 +41,10 @@ async function register ({
 
       const result = await storageManager.getData(fieldName + '-' + video.id)
       const result2 = await storageManager.getData(fieldName2 + '-' + video.id)
+      const result3 = await storageManager.getData(fieldName3 + '-' + video.id)
       video.pluginData[fieldName] = result
       video.pluginData[fieldName2] = result2
+      video.pluginData[fieldName3] = result3
 
       return video
     }
@@ -64,8 +68,10 @@ async function register ({
 	  console.log('FUCKING NUMBER', number)
 	  const videoFiles = await peertubeHelpers.videos.getFiles(videoId)
 	  console.log('got the video files', videoFiles)
-	  const { webVideo } = videoFiles
-	  const videoFile = webVideo.videoFiles[0].path || webVideo.videoFiles[0].url
+	  const { webVideo, hls, } = videoFiles
+	  const videoFile = hls.videoFiles.length > 0 ?
+		  hls.videoFiles[0].path || hls.videoFiles[0].url :
+		  webVideo.videoFiles[0].path || webVideo.videoFiles[0].url
 	  return new Promise((resolve, reject) => {
 		  const fullOutPath = `/data/${number}.m4a`
 		  console.log('FULLOUTPATH', fullOutPath)
@@ -125,13 +131,14 @@ async function register ({
 			const video = await peertubeHelpers.videos.loadByIdOrUUID(videoId)
 			console.log(video, video.id, video.name)
 			const number = await storageManager.getData(fieldName2 + '-' + videoId) || null
+			const pubDate = await storageManager.getData(fieldName3 + '-' + videoId) || null
 			const episodeRecord = {
 				number,
 				title: video.name,
 				guid: `POTP_${number}`,
 				audio: `https://pa.tube.sh/hn021FGl8ekgR9rk1Jjfig==,2216921583/potp/${number}.m4a`,
 				peertubeId: `https://gas.tube.sh/videos/embed/${video.uuid}`,
-				pubDate: video.originallyPublishedAt || video.publishedAt,
+				pubDate: pubDate !== null ? new Date(pubDate) : video.originallyPublishedAt || video.publishedAt,
 			}
 			const requestBody = JSON.stringify(episodeRecord)
 			const request = await fetch(`https://gascms.tube.sh/payload/api/episodes?draft=true`, {
