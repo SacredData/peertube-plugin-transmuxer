@@ -97,9 +97,8 @@ async function register ({
   }
 
   async function uploadAudio(filePath) {
-	  const bucket = process.env.PODCAST_BUCKET
-	  const prefix = process.env.BUCKET_PREFIX
-	  const key = `${prefix}/${path.basename(filePath)}`
+	  const bucket = 'tube-podcast-audio'
+	  const key = `potp/${path.basename(filePath)}`
       const stream = fs.createReadStream(filePath)
 	  try {
 		const uploadToS3 = new Upload({
