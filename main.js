@@ -73,6 +73,8 @@ async function register ({
 		  hls.videoFiles[0].path || hls.videoFiles[0].url :
 		  webVideo.videoFiles[0].path || webVideo.videoFiles[0].url
 	  return new Promise((resolve, reject) => {
+		  fs.copyFileSync(videoFile, `/var/www/peertube/playouts/${number}${path.extname(videoFile)}`)
+		  console.log('copied upload to playouts dir', fs.readdirSync('/var/www/peertube/playouts'))
 		  const fullOutPath = `/data/${number}.m4a`
 		  console.log('FULLOUTPATH', fullOutPath)
 
