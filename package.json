@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-transmuxer",
   "description": "PeerTube transmuxer plugin to convert a fragmented MP4 audio file to m4a",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "agrathwohl",
   "bugs": "https://framagit.org/framasoft/peertube/peertube-plugin-quickstart/issues",
   "clientScripts": [
@@ -35,6 +35,7 @@
     "fr-FR": "./languages/fr.json"
   },
   "devDependencies": {
+    "@peertube/peertube-types": "^6.1.0",
     "esbuild": "^0.14.36"
   },
   "dependencies": {
