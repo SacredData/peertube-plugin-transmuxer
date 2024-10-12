@@ -49,13 +49,13 @@ async function register({ registerHook, peertubeHelpers, storageManager }) {
     target: "action:api.video.uploaded",
     handler: async ({ video, body }) => {
       console.log(video, body);
-      const audioOutput = await doFfmpeg(video.id);
+      const audioOutput = await doFfmpeg(video.id, video.name);
       console.log("output the audio file", audioOutput, "and uploaded to S3");
       await postToCms(video.id);
     },
   });
 
-  async function doFfmpeg(videoId) {
+  async function doFfmpeg(videoId, videoName) {
     let number = null;
     while (!number) {
       number =
@@ -79,7 +79,7 @@ async function register({ registerHook, peertubeHelpers, storageManager }) {
         "copied upload to playouts dir",
         fs.readdirSync("/var/www/peertube/playouts"),
       );
-      const fullOutPath = `/data/${number}.m4a`;
+      const fullOutPath = `/data/${videoName.startsWith("Exclusive") ? "E" + number : number}.m4a`;
       console.log("FULLOUTPATH", fullOutPath);
 
       ffmpeg(videoFile)
@@ -147,8 +147,8 @@ async function register({ registerHook, peertubeHelpers, storageManager }) {
       const episodeRecord = {
         number,
         title: video.name,
-        guid: `POTP_${number}`,
-        audio: `https://pa.tube.sh/hn021FGl8ekgR9rk1Jjfig==,2216921583/potp/${number}.m4a`,
+        guid: `${video.name.startsWith("Exclusive") ? "E" : "POTP_"}${number}`,
+        audio: `https://pa.tube.sh/hn021FGl8ekgR9rk1Jjfig==,2216921583/potp/${video.name.startsWith("Exclusive") ? "E" + number : number}.m4a`,
         peertubeId: `https://gas.tube.sh/videos/embed/${video.uuid}`,
         pubDate:
           pubDate !== null
